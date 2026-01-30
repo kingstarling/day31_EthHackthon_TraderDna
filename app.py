@@ -110,6 +110,7 @@ def import_modules():
         create_time_decay_chart,
         create_risk_radar_chart,
         create_pnl_curve,
+        create_daily_activity_chart,
     )
     from visualization.report_card import (
         render_metric_row,
@@ -137,6 +138,7 @@ def import_modules():
         "create_time_decay_chart": create_time_decay_chart,
         "create_risk_radar_chart": create_risk_radar_chart,
         "create_pnl_curve": create_pnl_curve,
+        "create_daily_activity_chart": create_daily_activity_chart,
         "render_metric_row": render_metric_row,
         "render_tag_badges": render_tag_badges,
         "render_ai_summary_card": render_ai_summary_card,
