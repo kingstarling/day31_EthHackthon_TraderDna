@@ -11,6 +11,7 @@ from typing import Dict, Optional
 # 不再使用 empyrical，改为手动计算以提高环境兼容性
 
 
+# 直接使用手动计算
 def calculate_risk_metrics(
     returns_series: pd.Series,
     risk_free_rate: float = 0.04,
@@ -35,31 +36,13 @@ def calculate_risk_metrics(
     if len(returns) < 2:
         return _empty_metrics()
     
-    # 直接使用手动计算
+    # 手动计算各项指标
     metrics = _calculate_manually(returns, risk_free_rate, periods_per_year)
     
     # 添加额外指标
     metrics.update(_calculate_additional_metrics(returns))
     
     return metrics
-
-
-def _calculate_with_empyrical(
-    returns: pd.Series,
-    risk_free_rate: float,
-    periods_per_year: int
-) -> Dict[str, float]:
-    """使用 empyrical 库计算指标"""
-    daily_rf = risk_free_rate / periods_per_year
-    
-    return {
-        "sharpe_ratio": float(ep.sharpe_ratio(returns, risk_free=daily_rf, annualization=periods_per_year) or 0),
-        "sortino_ratio": float(ep.sortino_ratio(returns, required_return=daily_rf, annualization=periods_per_year) or 0),
-        "max_drawdown": float(ep.max_drawdown(returns) or 0),
-        "calmar_ratio": float(ep.calmar_ratio(returns) or 0),
-        "annual_return": float(ep.annual_return(returns, annualization=periods_per_year) or 0),
-        "annual_volatility": float(ep.annual_volatility(returns, annualization=periods_per_year) or 0),
-    }
 
 
 def _calculate_manually(
