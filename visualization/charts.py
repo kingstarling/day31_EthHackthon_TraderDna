@@ -96,7 +96,12 @@ def create_time_decay_chart(time_decay_data: Dict[str, Dict]) -> go.Figure:
     Returns:
         Plotly Figure 对象
     """
-    periods = ["全周期", "近90天", "近30天", "近7天"]
+    periods = [
+        "All-time (全周期)", 
+        "Recent 90d (近90天)", 
+        "Recent 30d (近30天)", 
+        "Recent 7d (近7天)"
+    ]
     period_keys = ["all_time", "90d", "30d", "7d"]
     
     pnl_values = [time_decay_data.get(k, {}).get("pnl", 0) for k in period_keys]

@@ -217,12 +217,12 @@ def interpret_risk_metrics(metrics: Dict[str, float]) -> Dict[str, str]:
     
     # 风险画像
     if sharpe > 1.5 and mdd < 0.2:
-        interpretations["risk_profile"] = "稳健收益型：低风险高回报"
+        interpretations["risk_profile"] = "Steady Winner: Low risk, high reward (稳健收益型：低风险高回报)"
     elif sharpe > 1 and mdd > 0.4:
-        interpretations["risk_profile"] = "高风险高收益型：愿意承担大回撤"
+        interpretations["risk_profile"] = "Aggressive: Willing to take high drawdowns (高风险高收益型：愿意承担大回撤)"
     elif sharpe < 0.5 and mdd > 0.3:
-        interpretations["risk_profile"] = "高风险低收益型：风险收益不匹配"
+        interpretations["risk_profile"] = "High Risk: Poor risk-reward ratio (高风险低收益型：风险收益不匹配)"
     else:
-        interpretations["risk_profile"] = "均衡型：风险收益适中"
+        interpretations["risk_profile"] = "Balanced: Moderate risk and reward (均衡型：风险收益适中)"
     
     return interpretations

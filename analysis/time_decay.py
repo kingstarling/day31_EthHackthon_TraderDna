@@ -177,13 +177,13 @@ def interpret_time_decay(result: Dict[str, Dict]) -> Dict[str, str]:
     
     # 主要警告
     if decay.get("severe_decay_alert", False):
-        interpretations["main_alert"] = "⚠️ 警告：该钱包近期表现显著下滑"
+        interpretations["main_alert"] = "⚠️ Warning: Significant performance decay recently. (警告：近期表现显著下滑)"
         interpretations["alert_level"] = "high"
     elif decay.get("recent_losing", False):
-        interpretations["main_alert"] = "⚠️ 注意：该钱包近 30 天处于亏损状态"
+        interpretations["main_alert"] = "⚠️ Notice: Currently in a losing streak (past 30 days). (注意：近 30 天处于亏损状态)"
         interpretations["alert_level"] = "medium"
     else:
-        interpretations["main_alert"] = "✅ 表现稳定：近期与历史表现一致"
+        interpretations["main_alert"] = "✅ Stable: Performance is consistent with history. (表现稳定：近期与历史表现一致)"
         interpretations["alert_level"] = "low"
     
     # 胜率趋势
