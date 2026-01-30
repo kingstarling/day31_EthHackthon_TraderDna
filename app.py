@@ -513,6 +513,14 @@ def render_results(results: Dict, modules: Dict):
         else:
             st.success(interp.get("main_alert", ""))
     
+    # 每日活跃分析
+    st.markdown("---")
+    modules["render_section_header"]("每日活跃分析", "📅")
+    
+    daily_chart = modules["create_daily_activity_chart"](results["trades_df"])
+    st.plotly_chart(daily_chart, use_container_width=True)
+    st.caption("💡 提示：将鼠标悬停在柱状图上可查看当天交易的代币符号。")
+    
     # 风险画像
     st.markdown("---")
     col1, col2 = st.columns([1, 1])

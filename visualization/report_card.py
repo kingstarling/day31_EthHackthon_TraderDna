@@ -222,16 +222,14 @@ def render_full_report(
         else:
             st.warning(f"⚠️ 注意：{beta_pct:.0f}% 的收益来自跟大盘")
     
-    # 时间衰减分析
-    render_section_header("时间衰减分析", "📉")
-    if "time_decay" in charts:
-        st.plotly_chart(charts["time_decay"], use_container_width=True)
-    
-    decay_metrics = time_decay_result.get("decay_metrics", {})
-    if decay_metrics.get("severe_decay_alert"):
-        st.error("⚠️ 警告：该钱包近期表现显著下滑")
     elif decay_metrics.get("recent_losing"):
         st.warning("⚠️ 注意：该钱包近 30 天处于亏损状态")
+    
+    # 每日活跃分析
+    render_section_header("每日活跃分析", "📅")
+    if "daily_activity" in charts:
+        st.plotly_chart(charts["daily_activity"], use_container_width=True)
+        st.caption("💡 提示：将鼠标悬停在柱状图上可查看当天交易的代币符号。")
     
     # 风险分析
     render_section_header("风险画像", "🛡️")

@@ -352,3 +352,86 @@ def create_trade_distribution_chart(
     )
     
     return fig
+
+
+def create_daily_activity_chart(trades_df: pd.DataFrame) -> go.Figure:
+    """
+    创建每日收益与交易活跃度组合图
+    
+    Args:
+        trades_df: 交易明细数据 (需包含 timestamp, realized_pnl, token_symbol)
+        
+    Returns:
+        Plotly Figure 对象
+    """
+    if trades_df.empty or 'timestamp' not in trades_df.columns:
+        return go.Figure()
+    
+    # 确保时间列是日期类型
+    df = trades_df.copy()
+    df['date'] = pd.to_datetime(df['timestamp']).dt.date
+    
+    # 按日聚合
+    daily_stats = df.groupby('date').agg({
+        'realized_pnl': 'sum',
+        'token_symbol': lambda x: ', '.join(sorted(list(set(x))))
+    })
+    daily_stats['trade_count'] = df.groupby('date').size()
+    daily_stats = daily_stats.sort_index()
+    
+    # 创建双轴图表
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    
+    # 1. 每日收益（柱状图）
+    pnl_colors = [COLORS["positive"] if v >= 0 else COLORS["negative"] for v in daily_stats['realized_pnl']]
+    
+    fig.add_trace(
+        go.Bar(
+            x=daily_stats.index,
+            y=daily_stats['realized_pnl'],
+            name="每日收益 (USD)",
+            marker_color=pnl_colors,
+            customdata=daily_stats['token_symbol'],
+            hovertemplate="<b>日期: %{x}</b><br>" +
+                          "收益: $%{y:,.2f}<br>" +
+                          "代币: %{customdata}<extra></extra>"
+        ),
+        secondary_y=False
+    )
+    
+    # 2. 交易次数（折线图）
+    fig.add_trace(
+        go.Scatter(
+            x=daily_stats.index,
+            y=daily_stats['trade_count'],
+            name="交易次数",
+            mode="lines+markers",
+            line=dict(color=COLORS["neutral"], width=2),
+            marker=dict(size=8, symbol="circle"),
+            hovertemplate="<b>日期: %{x}</b><br>" +
+                          "交易次数: %{y}<extra></extra>"
+        ),
+        secondary_y=True
+    )
+    
+    # 布局设置
+    fig.update_layout(
+        title={
+            "text": "每日盈亏与交易活跃度对齐",
+            "font": {"size": 16, "color": COLORS["text"]},
+        },
+        paper_bgcolor=COLORS["background"],
+        plot_bgcolor=COLORS["background"],
+        font={"color": COLORS["text"]},
+        legend={"orientation": "h", "y": -0.2},
+        height=450,
+        hovermode="x unified",
+        margin=dict(l=40, r=40, t=60, b=60)
+    )
+    
+    # 更新坐标轴
+    fig.update_yaxes(title_text="收益 (USD)", secondary_y=False, gridcolor="rgba(255,255,255,0.1)")
+    fig.update_yaxes(title_text="交易次数", secondary_y=True, showgrid=False)
+    
+    return fig
+
