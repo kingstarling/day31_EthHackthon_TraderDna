@@ -1,0 +1,28 @@
+# TraderDNA - Smart Money 体检中心
+# Python 依赖清单
+
+# Web 框架
+streamlit>=1.30.0
+
+# 数据处理
+pandas>=2.0.0
+numpy>=1.24.0
+
+# 量化分析
+empyrical>=0.5.5
+
+# 可视化
+plotly>=5.18.0
+
+# API 请求
+requests>=2.31.0
+aiohttp>=3.9.0
+
+# AI 评语
+openai>=1.10.0
+
+# 环境变量
+python-dotenv>=1.0.0
+
+# 工具
+web3>=6.0.0
