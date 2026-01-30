@@ -240,6 +240,13 @@ def fetch_wallet_data(wallet_address: str, chain: str = "Ethereum") -> Dict:
     # 获取钱包交易数据
     trades_df = dune_fetcher.get_wallet_trades(wallet_address, chain)
     
+    # 彻底过滤稳定币 (二次防御)
+    from config import config
+    if not trades_df.empty:
+        is_stable = trades_df['token_symbol'].isin(config.STABLECOIN_SYMBOLS) | \
+                    trades_df['token_address'].isin(config.STABLECOIN_ADDRESSES)
+        trades_df = trades_df[~is_stable].copy()
+    
     # 获取基准收益率
     eth_data = coingecko_fetcher.get_benchmark_price_history(days=180, chain=chain)
     eth_returns = eth_data["returns"].dropna() if "returns" in eth_data.columns else pd.Series()

@@ -158,7 +158,12 @@ class DuneFetcher:
             if 'realized_pnl' not in df.columns:
                  # 简单模拟: 假设 50% 概率盈利/亏损 10%
                  # 这是一个临时的前端展示处理
-                 df['realized_pnl'] = df['amount_usd'] * np.random.uniform(-0.5, 0.5, size=len(df))
+                 df['realized_pnl'] = df.apply(
+                     lambda row: 0 if (row['token_symbol'] in config.STABLECOIN_SYMBOLS or 
+                                       row.get('token_address') in config.STABLECOIN_ADDRESSES) 
+                     else row['amount_usd'] * np.random.uniform(-0.5, 0.5), 
+                     axis=1
+                 )
             
             return df
             
