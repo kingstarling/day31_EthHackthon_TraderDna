@@ -173,46 +173,49 @@ def interpret_risk_metrics(metrics: Dict[str, float]) -> Dict[str, str]:
     # 夏普比率解读
     sharpe = metrics.get("sharpe_ratio", 0)
     if sharpe > 2:
-        interpretations["sharpe_text"] = "优秀"
+        interpretations["sharpe_text"] = "Excellent (优秀)"
         interpretations["sharpe_level"] = "excellent"
     elif sharpe > 1:
-        interpretations["sharpe_text"] = "良好"
+        interpretations["sharpe_text"] = "Good (良好)"
         interpretations["sharpe_level"] = "good"
     elif sharpe > 0.5:
-        interpretations["sharpe_text"] = "一般"
+        interpretations["sharpe_text"] = "Average (一般)"
         interpretations["sharpe_level"] = "average"
+    elif sharpe > 0:
+        interpretations["sharpe_text"] = "Below Avg (较差)"
+        interpretations["sharpe_level"] = "poor"
     else:
-        interpretations["sharpe_text"] = "较差"
+        interpretations["sharpe_text"] = "Negative (亏损)"
         interpretations["sharpe_level"] = "poor"
     
     # 最大回撤解读
     mdd = abs(metrics.get("max_drawdown", 0))
     if mdd < 0.1:
-        interpretations["drawdown_text"] = "极低"
+        interpretations["drawdown_text"] = "Very Low (极低)"
         interpretations["drawdown_level"] = "excellent"
     elif mdd < 0.2:
-        interpretations["drawdown_text"] = "较低"
+        interpretations["drawdown_text"] = "Low (较低)"
         interpretations["drawdown_level"] = "good"
     elif mdd < 0.4:
-        interpretations["drawdown_text"] = "中等"
+        interpretations["drawdown_text"] = "Medium (中等)"
         interpretations["drawdown_level"] = "average"
     else:
-        interpretations["drawdown_text"] = "较高"
+        interpretations["drawdown_text"] = "High (较高)"
         interpretations["drawdown_level"] = "poor"
     
     # 盈亏比解读
     profit_factor = metrics.get("profit_factor", 0)
     if profit_factor > 2:
-        interpretations["profit_factor_text"] = "优秀"
+        interpretations["profit_factor_text"] = "Excellent (优秀)"
         interpretations["profit_factor_level"] = "excellent"
     elif profit_factor > 1.5:
-        interpretations["profit_factor_text"] = "良好"
+        interpretations["profit_factor_text"] = "Good (良好)"
         interpretations["profit_factor_level"] = "good"
     elif profit_factor > 1:
-        interpretations["profit_factor_text"] = "一般"
+        interpretations["profit_factor_text"] = "Average (一般)"
         interpretations["profit_factor_level"] = "average"
     else:
-        interpretations["profit_factor_text"] = "较差"
+        interpretations["profit_factor_text"] = "Poor (较差)"
         interpretations["profit_factor_level"] = "poor"
     
     # 风险画像
@@ -220,6 +223,8 @@ def interpret_risk_metrics(metrics: Dict[str, float]) -> Dict[str, str]:
         interpretations["risk_profile"] = "Steady Winner: Low risk, high reward (稳健收益型：低风险高回报)"
     elif sharpe > 1 and mdd > 0.4:
         interpretations["risk_profile"] = "Aggressive: Willing to take high drawdowns (高风险高收益型：愿意承担大回撤)"
+    elif sharpe < 0 or profit_factor < 0.9:
+        interpretations["risk_profile"] = "Capital Destroyer: High risk of loss (本金收割机：亏损风险极高)"
     elif sharpe < 0.5 and mdd > 0.3:
         interpretations["risk_profile"] = "High Risk: Poor risk-reward ratio (高风险低收益型：风险收益不匹配)"
     else:
