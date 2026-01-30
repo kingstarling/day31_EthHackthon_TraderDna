@@ -72,7 +72,7 @@ def create_alpha_beta_chart(
     fig.update_layout(
         barmode="stack",
         title={
-            "text": f"收益归因分析 | 总收益: {total_return * 100:.1f}%",
+            "text": f"Profit Attribution | Total Return: {total_return * 100:.1f}%<br><span style='font-size: 12px; color: #9CA3AF;'>收益归因分析 | 总收益: {total_return * 100:.1f}%</span>",
             "font": {"size": 16, "color": COLORS["text"]},
         },
         paper_bgcolor=COLORS["background"],
@@ -80,7 +80,7 @@ def create_alpha_beta_chart(
         font={"color": COLORS["text"]},
         showlegend=True,
         legend={"orientation": "h", "y": -0.2},
-        height=300,
+        height=320,
     )
     
     return fig
@@ -104,7 +104,7 @@ def create_time_decay_chart(time_decay_data: Dict[str, Dict]) -> go.Figure:
     
     fig = make_subplots(
         rows=1, cols=2,
-        subplot_titles=("PnL 对比", "胜率对比"),
+        subplot_titles=("PnL Comparison (PnL 对比)", "Win Rate Comparison (胜率对比)"),
         specs=[[{"type": "bar"}, {"type": "bar"}]],
         horizontal_spacing=0.15,  # 增加子图间距
     )
@@ -140,15 +140,15 @@ def create_time_decay_chart(time_decay_data: Dict[str, Dict]) -> go.Figure:
     
     fig.update_layout(
         title={
-            "text": "时间衰减分析",
+            "text": "Performance Decay Analysis<br><span style='font-size: 12px; color: #9CA3AF;'>时间衰减分析</span>",
             "font": {"size": 16, "color": COLORS["text"]},
         },
         paper_bgcolor=COLORS["background"],
         plot_bgcolor=COLORS["background"],
         font={"color": COLORS["text"]},
         showlegend=False,
-        height=350,
-        margin={"l": 40, "r": 40, "t": 60, "b": 60},  # 增加边距
+        height=380,
+        margin={"l": 40, "r": 40, "t": 80, "b": 60},  # 增加边距
     )
     
     # 更新 Y 轴范围，留出更多空间
@@ -167,7 +167,7 @@ def create_risk_radar_chart(metrics: Dict[str, float]) -> go.Figure:
     Returns:
         Plotly Figure 对象
     """
-    categories = ["夏普比率", "胜率", "盈亏比", "稳定性", "活跃度"]
+    categories = ["Sharpe (夏普)", "Win Rate (胜率)", "P/L Factor (盈亏)", "Stability (稳定)", "Activity (活跃)"]
     
     # 归一化指标到 0-100 范围
     sharpe = min(max(metrics.get("sharpe_ratio", 0) / 3 * 100, 0), 100)
@@ -199,13 +199,13 @@ def create_risk_radar_chart(metrics: Dict[str, float]) -> go.Figure:
             "bgcolor": COLORS["background"],
         },
         title={
-            "text": "风险画像雷达图",
+            "text": "Risk Radar Profile<br><span style='font-size: 12px; color: #9CA3AF;'>风险画像雷达图</span>",
             "font": {"size": 16, "color": COLORS["text"]},
         },
         paper_bgcolor=COLORS["background"],
         font={"color": COLORS["text"]},
         showlegend=False,
-        height=350,
+        height=380,
     )
     
     return fig
@@ -271,16 +271,16 @@ def create_pnl_curve(
     
     fig.update_layout(
         title={
-            "text": "累计收益曲线",
+            "text": "Cumulative Return Curve<br><span style='font-size: 12px; color: #9CA3AF;'>累计收益曲线</span>",
             "font": {"size": 16, "color": COLORS["text"]},
         },
-        xaxis_title="日期",
-        yaxis_title="累计收益 (%)",
+        xaxis_title="Date (日期)",
+        yaxis_title="Cumulative Return (累计收益 %)",
         paper_bgcolor=COLORS["background"],
         plot_bgcolor=COLORS["background"],
         font={"color": COLORS["text"]},
         hovermode="x unified",
-        height=400,
+        height=420,
     )
     
     return fig
@@ -417,21 +417,21 @@ def create_daily_activity_chart(trades_df: pd.DataFrame) -> go.Figure:
     # 布局设置
     fig.update_layout(
         title={
-            "text": "每日盈亏与交易活跃度对齐",
+            "text": "Daily PnL & Trade Activity<br><span style='font-size: 12px; color: #9CA3AF;'>每日盈亏与交易活跃度对齐</span>",
             "font": {"size": 16, "color": COLORS["text"]},
         },
         paper_bgcolor=COLORS["background"],
         plot_bgcolor=COLORS["background"],
         font={"color": COLORS["text"]},
         legend={"orientation": "h", "y": -0.2},
-        height=450,
+        height=480,
         hovermode="x unified",
-        margin=dict(l=40, r=40, t=60, b=60)
+        margin=dict(l=40, r=40, t=80, b=60)
     )
     
     # 更新坐标轴
-    fig.update_yaxes(title_text="收益 (USD)", secondary_y=False, gridcolor="rgba(255,255,255,0.1)")
-    fig.update_yaxes(title_text="交易次数", secondary_y=True, showgrid=False)
+    fig.update_yaxes(title_text="Return (USD/收益)", secondary_y=False, gridcolor="rgba(255,255,255,0.1)")
+    fig.update_yaxes(title_text="Trades (次数)", secondary_y=True, showgrid=False)
     
     return fig
 

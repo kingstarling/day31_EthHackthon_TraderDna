@@ -9,22 +9,24 @@ from typing import Dict, List, Tuple, Optional
 
 
 def render_metric_card(
-    label: str,
+    label_en: str,
+    label_zh: str,
     value: str,
     delta: Optional[str] = None,
     delta_color: str = "normal"
 ) -> None:
     """
-    渲染指标卡片
-    
-    Args:
-        label: 指标标签
-        value: 指标值
-        delta: 变化值（可选）
-        delta_color: 变化值颜色 (normal, inverse, off)
+    渲染双语指标卡片
     """
+    label_html = f"""
+    <div style="display: flex; flex-direction: column; margin-bottom: 4px;">
+        <span style="font-size: 14px; color: #94A3B8; font-weight: 500;">{label_en}</span>
+        <span style="font-size: 11px; color: #64748B;">{label_zh}</span>
+    </div>
+    """
+    st.markdown(label_html, unsafe_allow_html=True)
     st.metric(
-        label=label,
+        label="", # 隐藏原生标签
         value=value,
         delta=delta,
         delta_color=delta_color,
@@ -43,7 +45,8 @@ def render_metric_row(metrics: List[Dict]) -> None:
     for col, metric in zip(cols, metrics):
         with col:
             render_metric_card(
-                label=metric.get("label", ""),
+                label_en=metric.get("label_en", ""),
+                label_zh=metric.get("label_zh", ""),
                 value=metric.get("value", ""),
                 delta=metric.get("delta"),
                 delta_color=metric.get("delta_color", "normal"),
@@ -52,25 +55,36 @@ def render_metric_row(metrics: List[Dict]) -> None:
 
 def render_tag_badges(tags: List[Tuple[str, str, str]]) -> None:
     """
-    渲染行为标签徽章
-    
-    Args:
-        tags: 标签列表，每个元素为 (emoji, name, description)
+    渲染双语行为标签徽章
     """
+    from analysis.behavior_tags import TAGS_ZH
+    
     if not tags:
-        st.info("暂无明显行为特征")
+        st.info("No significant behavioral traits detected. (暂无明显行为特征)")
         return
     
-    # 使用 HTML 渲染标签
     badges_html = ""
-    for emoji, name, desc in tags:
+    for emoji, name_en, desc in tags:
+        name_zh = TAGS_ZH.get(name_en, "")
         badge = f"""
-        <span style="display: inline-block; padding: 4px 12px; margin: 4px; border-radius: 16px; background: linear-gradient(135deg, #374151, #1F2937); border: 1px solid #4B5563; font-size: 14px;" title="{desc}">
-            {emoji} {name}
-        </span>"""
+        <div style="
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            padding: 6px 14px; 
+            margin: 4px; 
+            border-radius: 12px; 
+            background: linear-gradient(135deg, #374151, #1F2937); 
+            border: 1px solid #4B5563;
+            min-width: 100px;
+        " title="{desc}">
+            <div style="font-size: 14px; color: #F9FAFB; font-weight: 500;">{emoji} {name_en}</div>
+            <div style="font-size: 10px; color: #9CA3AF; margin-top: 2px;">{name_zh}</div>
+        </div>"""
         badges_html += badge
     
-    st.markdown(f"""<div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; background: #111827; border-radius: 8px;">{badges_html}</div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #111827; border-radius: 12px; border: 1px solid #1F2937;">{badges_html}</div>""", unsafe_allow_html=True)
 
 
 def render_ai_summary_card(ai_result: Dict[str, str]) -> None:
@@ -98,20 +112,16 @@ def render_ai_summary_card(ai_result: Dict[str, str]) -> None:
         st.divider()
         
         if recommendation == "推荐":
-            st.success(f"{emoji} 跟单建议：{recommendation}")
+            st.success(f"{emoji} Recommendation: Recommended (建议跟单)")
         elif recommendation == "不推荐":
-            st.error(f"{emoji} 跟单建议：{recommendation}")
+            st.error(f"{emoji} Recommendation: Not Recommended (不建议跟单)")
         else:
-            st.warning(f"{emoji} 跟单建议：{recommendation}")
+            st.warning(f"{emoji} Recommendation: Caution (谨慎跟单)")
 
 
-def render_section_header(title: str, icon: str = "📊") -> None:
+def render_section_header(title_en: str, title_zh: str, icon: str = "📊") -> None:
     """
-    渲染区块标题
-    
-    Args:
-        title: 标题文本
-        icon: 图标
+    渲染双语区块标题
     """
     st.markdown(f"""
     <div style="
@@ -121,10 +131,11 @@ def render_section_header(title: str, icon: str = "📊") -> None:
         padding-bottom: 8px;
         border-bottom: 2px solid #374151;
     ">
-        <span style="font-size: 24px; margin-right: 8px;">{icon}</span>
-        <span style="font-size: 18px; font-weight: 600; color: #F9FAFB;">
-            {title}
-        </span>
+        <span style="font-size: 24px; margin-right: 12px;">{icon}</span>
+        <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 18px; font-weight: 600; color: #F9FAFB; line-height: 1.2;">{title_en}</span>
+            <span style="font-size: 13px; color: #9CA3AF; margin-top: 2px;">{title_zh}</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -174,41 +185,45 @@ def render_full_report(
     st.markdown(f"""
     <div style="
         text-align: center;
-        padding: 20px;
+        padding: 24px;
         background: linear-gradient(135deg, #1F2937, #111827);
         border-radius: 12px;
-        margin-bottom: 24px;
+        margin-bottom: 32px;
     ">
-        <h1 style="color: #F9FAFB; margin: 0;">🧬 TraderDNA 体检报告</h1>
-        <p style="color: #9CA3AF; margin: 8px 0 0 0; font-family: monospace;">
-            {wallet_address[:8]}...{wallet_address[-6:] if len(wallet_address) > 14 else wallet_address}
+        <h1 style="color: #F9FAFB; margin: 0; font-size: 28px;">🧬 TraderDNA Report</h1>
+        <p style="color: #9CA3AF; margin: 4px 0 12px 0; font-size: 14px;">交易员基因分析报告</p>
+        <p style="color: #6B7280; margin: 0; font-family: monospace; font-size: 12px;">
+            {wallet_address}
         </p>
     </div>
     """, unsafe_allow_html=True)
     
     # 核心指标
-    render_section_header("核心指标", "💰")
+    render_section_header("Core Metrics", "核心指标", "💰")
     render_metric_row([
         {
-            "label": "总收益",
+            "label_en": "Total PnL",
+            "label_zh": "总收益",
             "value": f"${metrics.get('total_pnl', 0):,.0f}",
         },
         {
-            "label": "胜率",
+            "label_en": "Win Rate",
+            "label_zh": "交易胜率",
             "value": f"{metrics.get('win_rate', 0) * 100:.1f}%",
         },
         {
-            "label": "夏普比率",
+            "label_en": "Sharpe Ratio",
+            "label_zh": "夏普比率",
             "value": f"{risk_metrics.get('sharpe_ratio', 0):.2f}",
         },
     ])
     
     # 行为标签
-    render_section_header("行为标签", "🏷️")
+    render_section_header("Behavioral Tags", "行为标签", "🏷️")
     render_tag_badges(behavior_tags)
     
     # 收益归因
-    render_section_header("收益归因分析", "📊")
+    render_section_header("Profit Attribution", "收益归因分析", "📊")
     col1, col2 = st.columns([2, 1])
     with col1:
         if "alpha_beta" in charts:
@@ -218,39 +233,40 @@ def render_full_report(
         beta_pct = alpha_beta_result.get("beta_pct", 0)
         
         if alpha_pct > 50:
-            st.success(f"✅ 真实力：{alpha_pct:.0f}% 的收益来自 Alpha")
+            st.success(f"✅ Skill: {alpha_pct:.0f}% Alpha\n\n(来自真实操盘能力)")
         else:
-            st.warning(f"⚠️ 注意：{beta_pct:.0f}% 的收益来自跟大盘")
+            st.warning(f"⚠️ Market: {beta_pct:.0f}% Beta\n\n(主要随大盘波动)")
     
     # 时间衰减分析
-    render_section_header("时间衰减分析", "📉")
+    render_section_header("Performance Decay", "时间衰减分析", "📉")
     if "time_decay" in charts:
         st.plotly_chart(charts["time_decay"], use_container_width=True)
     
     decay_metrics = time_decay_result.get("decay_metrics", {})
     if decay_metrics.get("severe_decay_alert"):
-        st.error("⚠️ 警告：该钱包近期表现显著下滑")
+        st.error("⚠️ Warning: Significant performance decay detected recently.\n\n(警告：近期表现显著下滑)")
     elif decay_metrics.get("recent_losing"):
-        st.warning("⚠️ 注意：该钱包近 30 天处于亏损状态")
+        st.warning("⚠️ Note: Currently in a losing streak (past 30 days).\n\n(注意：近 30 天处于亏损状态)")
     
     # 每日活跃分析
-    render_section_header("每日活跃分析", "📅")
+    render_section_header("Daily Activity", "每日活跃分析", "📅")
     if "daily_activity" in charts:
         st.plotly_chart(charts["daily_activity"], use_container_width=True)
-        st.caption("💡 提示：将鼠标悬停在柱状图上可查看当天交易的代币符号。")
+        st.caption("💡 Tip: Hover over bars to see token details. (提示：悬停在柱状图上可查看代币详情)")
     
     # 风险分析
-    render_section_header("风险画像", "🛡️")
+    render_section_header("Risk Profile", "风险画像", "🛡️")
     col1, col2 = st.columns(2)
     with col1:
         if "risk_radar" in charts:
             st.plotly_chart(charts["risk_radar"], use_container_width=True)
     with col2:
         render_metric_row([
-            {"label": "最大回撤", "value": f"{abs(risk_metrics.get('max_drawdown', 0)) * 100:.1f}%"},
-            {"label": "盈亏比", "value": f"{risk_metrics.get('profit_factor', 0):.2f}"},
+            {"label_en": "Max Drawdown", "label_zh": "最大回撤", "value": f"{abs(risk_metrics.get('max_drawdown', 0)) * 100:.1f}%"},
+            {"label_en": "Profit Factor", "label_zh": "盈亏比", "value": f"{risk_metrics.get('profit_factor', 0):.2f}"},
         ])
     
     # AI 评语
-    render_section_header("AI 分析师评语", "🤖")
+    render_section_header("AI Analyst Summary", "AI 分析师评语", "🤖")
     render_ai_summary_card(ai_summary)
+

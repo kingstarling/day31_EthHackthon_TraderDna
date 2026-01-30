@@ -58,7 +58,7 @@ def generate_ai_summary(
             messages=[
                 {
                     "role": "system",
-                    "content": "你是一位专业的链上分析师，擅长分析 crypto 交易员的表现。请用简洁、专业的语言给出投资建议。"
+                    "content": "You are a professional on-chain analyst. Analyze crypto traders. Provide feedback in BILINGUAL format: English first, then Chinese in brackets or a new line. Primary language is English."
                 },
                 {
                     "role": "user",
@@ -80,32 +80,23 @@ def generate_ai_summary(
 def _build_prompt(data: Dict) -> str:
     """构建 AI Prompt"""
     return f"""
-请根据以下数据为这个钱包生成一段简洁的投资建议（100字以内）：
+Analyze this wallet performance and provide a professional investment summary (under 150 words).
+Format: English first, with Chinese translation provided as a sub-text/smaller font below each point if possible, or simply follow each English sentence with a Chinese translation in parentheses.
 
-## 基础数据
-- 总收益: ${data.get('total_pnl', 0):,.0f}
-- 胜率: {data.get('win_rate', 0) * 100:.1f}%
-- 交易次数: {data.get('trade_count', 0)}
+## DATA
+- Total PnL: ${data.get('total_pnl', 0):,.0f}
+- Win Rate: {data.get('win_rate', 0) * 100:.1f}%
+- Trades: {data.get('trade_count', 0)}
+- Alpha: {data.get('alpha_pct', 0):.1f}% (Skill)
+- Beta: {data.get('beta_pct', 0):.1f}% (Market)
+- Sharpe: {data.get('sharpe', 0):.2f}
+- Max DD: {abs(data.get('max_dd', 0)) * 100:.1f}%
+- Behavioral Tags: {data.get('tags', 'N/A')}
 
-## 归因分析
-- Alpha占比: {data.get('alpha_pct', 0):.1f}% (真实力)
-- Beta占比: {data.get('beta_pct', 0):.1f}% (跟大盘)
-
-## 时间衰减
-- 全周期胜率: {data.get('all_time_wr', 0) * 100:.1f}%
-- 近30天胜率: {data.get('30d_wr', 0) * 100:.1f}%
-
-## 风险指标
-- 夏普比率: {data.get('sharpe', 0):.2f}
-- 最大回撤: {abs(data.get('max_dd', 0)) * 100:.1f}%
-
-## 行为标签
-{data.get('tags', '暂无标签')}
-
-请给出：
-1. 一句话总结这个交易员的风格
-2. 是否值得跟单的建议（推荐/谨慎/不推荐）
-3. 如果跟单，需要注意什么
+Please provide:
+1. One-sentence summary of the trader's style.
+2. Clear recommendation (Recommended / Caution / Not Recommended).
+3. If copying, what risks to watch out for.
 """
 
 
@@ -143,11 +134,11 @@ def _calculate_confidence(data: Dict) -> str:
     trade_count = data.get("trade_count", 0)
     
     if trade_count >= 100:
-        return "高置信度"
+        return "High Confidence (高置信度)"
     elif trade_count >= 30:
-        return "中等置信度"
+        return "Medium Confidence (中等置信度)"
     else:
-        return "低置信度（数据不足）"
+        return "Low Confidence (低置信度-数据不足)"
 
 
 def _generate_fallback_summary(data: Dict) -> Dict[str, str]:
@@ -166,48 +157,46 @@ def _generate_fallback_summary(data: Dict) -> Dict[str, str]:
     recent_wr = data.get("30d_wr", 0)
     
     # 生成风格描述
-    style_parts = []
+    style_parts_en = []
+    style_parts_zh = []
     
     if alpha_pct > 60:
-        style_parts.append("真实力型")
+        style_parts_en.append("Skill-based")
+        style_parts_zh.append("实战型")
     elif beta_pct > 60:
-        style_parts.append("跟大盘型")
+        style_parts_en.append("Market-following")
+        style_parts_zh.append("行情跟随型")
     
     if all_time_wr > 0 and recent_wr / all_time_wr < 0.7:
-        style_parts.append("近期下滑")
+        style_parts_en.append("Performance Decay")
+        style_parts_zh.append("近期下滑")
     
     if sharpe > 2:
-        style_parts.append("稳健")
+        style_parts_en.append("Stable")
+        style_parts_zh.append("稳健")
     elif max_dd > 0.4:
-        style_parts.append("高风险")
+        style_parts_en.append("High Risk")
+        style_parts_zh.append("高风险")
     
-    style = "【" + "，".join(style_parts) + "】" if style_parts else "【普通交易员】"
+    style_en = " / ".join(style_parts_en) if style_parts_en else "Average Trader"
+    style_zh = " / ".join(style_parts_zh) if style_parts_zh else "普通交易员"
     
     # 生成建议
     recommendation = "谨慎"
+    rec_en = "Caution"
     if alpha_pct > 50 and sharpe > 1.5 and recent_wr >= all_time_wr * 0.8:
         recommendation = "推荐"
+        rec_en = "Recommended"
     elif alpha_pct < 30 or sharpe < 0.5 or total_pnl < 0:
         recommendation = "不推荐"
+        rec_en = "Not Recommended"
     
-    # 生成注意事项
-    notes = []
-    if beta_pct > 50:
-        notes.append(f"{beta_pct:.0f}% 的收益来自 Beta（跟随大盘）")
-    if all_time_wr > 0 and recent_wr < all_time_wr * 0.7:
-        notes.append("近期表现显著下滑")
-    if max_dd > 0.3:
-        notes.append(f"最大回撤达 {max_dd * 100:.0f}%，需控制仓位")
+    summary = f"""**Trader Style:** {style_en} <br> <span style="font-size: 11px; color: #9CA3AF;">交易员风格：{style_zh}</span>
     
-    notes_text = "；".join(notes) if notes else "无特别注意事项"
-    
-    summary = f"""该交易员属于{style}。
+**Performance:** Total PnL is ${total_pnl:,.0f} with {alpha_pct:.0f}% Alpha (skill). <br> <span style="font-size: 11px; color: #9CA3AF;">表现：总收益 ${total_pnl:,.0f}，Alpha 占比 {alpha_pct:.0f}%</span>
 
-总收益 ${total_pnl:,.0f}，其中 Alpha 占比 {alpha_pct:.0f}%，Beta 占比 {beta_pct:.0f}%。
-
-📊 跟单建议：{_get_recommendation_emoji(recommendation)} {recommendation}
-
-⚠️ 注意事项：{notes_text}"""
+**Recommendation:** {rec_en} <br> <span style="font-size: 11px; color: #9CA3AF;">跟单建议：{recommendation}</span>
+"""
     
     return {
         "summary": summary,

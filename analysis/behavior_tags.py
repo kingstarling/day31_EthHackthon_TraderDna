@@ -23,20 +23,38 @@ class BehaviorTag:
 
 # 预定义标签
 TAGS = {
-    "diamond_hands": BehaviorTag("💎", "钻石手", "平均持仓超过7天", "positive"),
-    "paper_hands": BehaviorTag("🧻", "纸手", "平均持仓不足1天", "negative"),
-    "gambler": BehaviorTag("🎰", "高频赌徒", "高频交易且赔率不佳", "warning"),
-    "conservative": BehaviorTag("🐢", "稳健派", "低风险稳定收益", "positive"),
-    "one_hit_wonder": BehaviorTag("🚀", "一战成名", "收益主要来自单笔交易", "warning"),
-    "one_token_pony": BehaviorTag("🦄", "单币战士", "收益主要来自单一币种", "warning"),
-    "suspicious": BehaviorTag("🐀", "疑似内幕", "多次在暴涨前精准买入", "warning"),
-    "whale": BehaviorTag("🐋", "巨鲸", "大额交易者", "neutral"),
-    "sniper": BehaviorTag("🎯", "狙击手", "高胜率精准出手", "positive"),
-    "fomo_buyer": BehaviorTag("😱", "FOMO买家", "常在高点追涨", "negative"),
-    "smart_money": BehaviorTag("🧠", "聪明钱", "综合表现优秀", "positive"),
-    "declining": BehaviorTag("📉", "近期下滑", "近期表现不如历史", "warning"),
-    "active_trader": BehaviorTag("⚡", "活跃交易者", "交易频繁", "neutral"),
-    "dormant": BehaviorTag("😴", "休眠账户", "近期不活跃", "neutral"),
+    "diamond_hands": BehaviorTag("💎", "Diamond Hands", "平均持仓超过7天 (Avg Hold > 7d)", "positive"),
+    "paper_hands": BehaviorTag("🧻", "Paper Hands", "平均持仓不足1天 (Avg Hold < 1d)", "negative"),
+    "gambler": BehaviorTag("🎰", "Gambler", "高频交易且赔率不佳 (High freq, bad odds)", "warning"),
+    "conservative": BehaviorTag("🐢", "Conservative", "低风险稳定收益 (Low risk, stable)", "positive"),
+    "one_hit_wonder": BehaviorTag("🚀", "One-Hit Wonder", "收益主要来自单笔交易 (Single win reliance)", "warning"),
+    "one_token_pony": BehaviorTag("🦄", "One-Token Pony", "收益主要来自单一币种 (Concentrated on one token)", "warning"),
+    "suspicious": BehaviorTag("🐀", "Suspicious", "多次在暴涨前精准买入 (Insider-like precision)", "warning"),
+    "whale": BehaviorTag("🐋", "Whale", "大额交易者 (High volume trader)", "neutral"),
+    "sniper": BehaviorTag("🎯", "Sniper", "高胜率精准出手 (High win rate sniper)", "positive"),
+    "fomo_buyer": BehaviorTag("😱", "FOMO Buyer", "常在高点追涨 (Chasing pumps)", "negative"),
+    "smart_money": BehaviorTag("🧠", "Smart Money", "综合表现优秀 (High Alpha & skill)", "positive"),
+    "declining": BehaviorTag("📉", "Declining", "近期表现不如历史 (Performance decay)", "warning"),
+    "active_trader": BehaviorTag("⚡", "Active Trader", "交易频繁 (Frequently trading)", "neutral"),
+    "dormant": BehaviorTag("😴", "Dormant", "近期不活跃 (Inactive recently)", "neutral"),
+}
+
+# 对应的中文翻译（辅助显示）
+TAGS_ZH = {
+    "Diamond Hands": "钻石手",
+    "Paper Hands": "纸手",
+    "Gambler": "高频赌徒",
+    "Conservative": "稳健派",
+    "One-Hit Wonder": "一战成名",
+    "One-Token Pony": "单币战士",
+    "Suspicious": "疑似内幕",
+    "Whale": "巨鲸",
+    "Sniper": "狙击手",
+    "FOMO Buyer": "FOMO买家",
+    "Smart Money": "聪明钱",
+    "Declining": "近期下滑",
+    "Active Trader": "活跃交易者",
+    "Dormant": "休眠账户",
 }
 
 

@@ -23,7 +23,7 @@ from typing import Dict, Optional
 
 # 页面配置
 st.set_page_config(
-    page_title="TraderDNA - Smart Money 体检中心",
+    page_title="TraderDNA - Smart Money Analysis",
     page_icon="🧬",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -150,50 +150,68 @@ def import_modules():
 
 
 def render_header():
-    """渲染页面头部"""
-    st.markdown("""
-    <div style="text-align: center; padding: 40px 0;">
-        <h1 style="
-            font-size: 48px;
-            background: linear-gradient(135deg, #10B981, #3B82F6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        ">🧬 TraderDNA</h1>
-        <p style="
-            color: #94A3B8;
-            font-size: 18px;
-            margin: 0;
-        ">Smart Money 的体检中心 —— 在你跟单之前，先看看这个钱包的「基因报告」</p>
+    """渲染头部 HTML"""
+    st.markdown(f"""
+    <div style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 48px 0 24px 0;
+        background: transparent;
+    ">
+        <div style="text-align: center;">
+            <h1 style="
+                font-size: 52px;
+                font-weight: 800;
+                margin: 0;
+                background: linear-gradient(135deg, #10B981, #3B82F6);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                letter-spacing: -1px;
+            ">TraderDNA</h1>
+            <p style="
+                color: #94A3B8;
+                font-size: 20px;
+                margin: 8px 0 0 0;
+                font-weight: 400;
+            ">Smart Money Analysis Center</p>
+            <p style="
+                color: #64748B;
+                font-size: 14px;
+                margin: 4px 0 0 0;
+            ">挖掘链上高胜率交易者的基因</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
 
 def render_input_section():
-    """渲染输入区域"""
-    col1, col2, col3 = st.columns([1, 4, 1])
+    """渲染地址输入区域"""
+    col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        # 链选择器与地址输入框
-        c1, c2 = st.columns([1, 3])
-        with c1:
+        input_col, btn_col = st.columns([4, 1])
+        
+        with input_col:
+            # 选择链
             chain = st.selectbox(
-                "选择公链",
+                "Select Chain (选择公链)",
                 ["Ethereum", "Solana"],
                 label_visibility="collapsed",
-                key="chain_selector"
+                index=0
             )
-        with c2:
+            
             wallet_address = st.text_input(
-                "输入钱包地址",
-                placeholder=f"{'0x...' if chain == 'Ethereum' else 'Solana... (Base58)'}",
-                label_visibility="collapsed",
+                "Wallet Address (钱包地址)",
+                placeholder="Enter Address / ENS (输入钱包地址或 ENS)",
+                label_visibility="collapsed"
             )
-        
-        col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
-        with col_btn2:
-            analyze_btn = st.button("🔍 开始体检", use_container_width=True)
-    
+            
+        with btn_col:
+            # 按钮对齐美化
+            st.write("<div style='height: 42px;'></div>", unsafe_allow_html=True)
+            analyze_btn = st.button("🚀 Start (开始体检)", use_container_width=True)
+            
     return wallet_address, chain, analyze_btn
 
 
@@ -305,21 +323,21 @@ def run_analysis(wallet_address: str, chain: str, modules: Dict) -> Dict:
     
     try:
         # Step 1: 验证地址
-        status.text(f"🔍 验证 {chain} 钱包地址...")
+        status.text(f"🔍 Validating {chain} address... (验证地址)")
         progress.progress(10)
         
         if not modules["validate_wallet_address"](wallet_address, chain):
             if wallet_address.endswith(".eth"):
-                status.text("📛 解析 ENS 域名...")
+                status.text("📛 Resolving ENS... (解析域名)")
                 # TODO: 实现 ENS 解析
-                st.warning("ENS 解析功能开发中，请使用完整地址")
+                st.warning("ENS resolution is coming soon. Please use full address.")
                 return None
             else:
-                st.error(f"❌ 无效的 {chain} 钱包地址格式")
+                st.error(f"❌ Invalid {chain} address format. (地址格式错误)")
                 return None
         
         # Step 2: 获取真实数据
-        status.text("📊 获取链上数据...")
+        status.text("📊 Fetching on-chain data... (获取数据)")
         progress.progress(30)
         
         wallet_data = fetch_wallet_data(wallet_address, chain)
@@ -328,28 +346,28 @@ def run_analysis(wallet_address: str, chain: str, modules: Dict) -> Dict:
         trades_df = wallet_data['trades_df']
         
         # Step 3: Alpha/Beta 分析
-        status.text("🧮 计算 Alpha/Beta...")
+        status.text("🧮 Calculating Alpha/Beta... (计算归因)")
         progress.progress(50)
         
         alpha_beta_result = modules["calculate_alpha_beta"](wallet_returns, eth_returns)
         alpha_beta_interp = modules["interpret_alpha_beta"](alpha_beta_result)
         
         # Step 4: 时间衰减分析
-        status.text("📉 分析时间衰减...")
+        status.text("📉 Analyzing Decay... (分析衰减)")
         progress.progress(65)
         
         time_decay_result = modules["time_decay_analysis"](trades_df)
         time_decay_interp = modules["interpret_time_decay"](time_decay_result)
         
         # Step 5: 风险指标
-        status.text("🛡️ 计算风险指标...")
+        status.text("🛡️ Computing Risk Stats... (计算风险)")
         progress.progress(80)
         
         risk_metrics = modules["calculate_risk_metrics"](wallet_returns)
         risk_interp = modules["interpret_risk_metrics"](risk_metrics)
         
         # Step 6: 行为标签
-        status.text("🏷️ 生成行为标签...")
+        status.text("🏷️ Generating Tags... (生成标签)")
         progress.progress(90)
         
         # 计算高级指标 (Hold Time, Concentration)
@@ -452,30 +470,32 @@ def render_results(results: Dict, modules: Dict):
         border-radius: 16px;
         margin: 32px 0;
     ">
-        <h2 style="color: #F1F5F9; margin: 0 0 8px 0;">🧬 体检报告</h2>
+        <h2 style="color: #F1F5F9; margin: 0 0 4px 0;">🧬 TraderDNA Report</h2>
+        <p style="color: #64748B; margin: 0 0 12px 0; font-size: 14px;">交易员基因体检报告</p>
         <p style="
-            color: #64748B;
+            color: #475569;
             font-family: 'SF Mono', monospace;
             margin: 0;
-        ">{modules['truncate_address'](wallet_address)}</p>
+            font-size: 12px;
+        ">{wallet_address}</p>
     </div>
     """, unsafe_allow_html=True)
     
     # 核心指标
-    modules["render_section_header"]("核心指标", "💰")
+    modules["render_section_header"]("Core Metrics", "核心指标", "💰")
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("总收益", f"${results['total_pnl']:,.0f}")
+        modules["render_metric_card"]("Total PnL", "总收益", f"${results['total_pnl']:,.0f}")
     with col2:
-        st.metric("胜率", f"{results['risk_metrics'].get('win_rate', 0) * 100:.1f}%")
+        modules["render_metric_card"]("Win Rate", "交易胜率", f"{results['risk_metrics'].get('win_rate', 0) * 100:.1f}%")
     with col3:
-        st.metric("夏普比率", f"{results['risk_metrics'].get('sharpe_ratio', 0):.2f}")
+        modules["render_metric_card"]("Sharpe Ratio", "夏普比率", f"{results['risk_metrics'].get('sharpe_ratio', 0):.2f}")
     with col4:
-        st.metric("交易次数", f"{results['trade_count']}")
+        modules["render_metric_card"]("Trades", "交易次数", f"{results['trade_count']}")
     
     # 行为标签
-    modules["render_section_header"]("行为标签", "🏷️")
+    modules["render_section_header"]("Behavioral Tags", "行为标签", "🏷️")
     modules["render_tag_badges"](results["behavior_tags"])
     
     # 收益归因 & 时间衰减
@@ -483,7 +503,7 @@ def render_results(results: Dict, modules: Dict):
     col1, col2 = st.columns(2)
     
     with col1:
-        modules["render_section_header"]("收益归因分析", "📊")
+        modules["render_section_header"]("Profit Attribution", "收益归因分析", "📊")
         
         alpha_beta = results["alpha_beta"]
         chart = modules["create_alpha_beta_chart"](
@@ -495,64 +515,66 @@ def render_results(results: Dict, modules: Dict):
         
         # 解读
         interp = results["alpha_beta_interp"]
+        attribution_text = interp.get('attribution_text', '')
         if interp.get("is_skill_based", False):
-            st.success(f"✅ {interp.get('attribution_text', '')}")
+            st.success(f"✅ Skill: {results['alpha_beta'].get('alpha_pct', 0):.0f}% Alpha\n\n({attribution_text})")
         else:
-            st.warning(f"⚠️ {interp.get('attribution_text', '')}")
+            st.warning(f"⚠️ Market: {results['alpha_beta'].get('beta_pct', 0):.0f}% Beta\n\n({attribution_text})")
     
     with col2:
-        modules["render_section_header"]("时间衰减分析", "📉")
+        modules["render_section_header"]("Performance Decay", "时间衰减分析", "📉")
         
         time_decay_chart = modules["create_time_decay_chart"](results["time_decay"])
         st.plotly_chart(time_decay_chart, use_container_width=True)
         
         # 解读
         interp = results["time_decay_interp"]
+        msg = interp.get("main_alert", "")
         if interp.get("alert_level") == "high":
-            st.error(interp.get("main_alert", ""))
+            st.error(f"🚨 {msg}")
         elif interp.get("alert_level") == "medium":
-            st.warning(interp.get("main_alert", ""))
+            st.warning(f"⚠️ {msg}")
         else:
-            st.success(interp.get("main_alert", ""))
+            st.success(f"✅ {msg}")
     
     # 每日活跃分析
     st.markdown("---")
-    modules["render_section_header"]("每日活跃分析", "📅")
+    modules["render_section_header"]("Daily Activity", "每日活跃分析", "📅")
     
     daily_chart = modules["create_daily_activity_chart"](results["trades_df"])
     st.plotly_chart(daily_chart, use_container_width=True)
-    st.caption("💡 提示：将鼠标悬停在柱状图上可查看当天交易的代币符号。")
+    st.caption("💡 Tip: Hover over bars to see token symbols. (提示：悬停在柱状图上可查看代币符号)")
     
     # 风险画像
     st.markdown("---")
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        modules["render_section_header"]("风险画像", "🛡️")
+        modules["render_section_header"]("Risk Profile", "风险画像", "🛡️")
         
         radar_chart = modules["create_risk_radar_chart"](results["risk_metrics"])
         st.plotly_chart(radar_chart, use_container_width=True)
     
     with col2:
-        modules["render_section_header"]("风险指标详情", "📋")
+        modules["render_section_header"]("Risk Details", "风险指标详情", "📋")
         
         metrics = results["risk_metrics"]
         interp = results["risk_interp"]
         
         st.markdown(f"""
-        | 指标 | 数值 | 评级 |
+        | Metric (指标) | Value (数值) | Rating (评级) |
         |------|------|------|
-        | 夏普比率 | {metrics.get('sharpe_ratio', 0):.2f} | {interp.get('sharpe_text', '-')} |
-        | 最大回撤 | {abs(metrics.get('max_drawdown', 0)) * 100:.1f}% | {interp.get('drawdown_text', '-')} |
-        | 盈亏比 | {metrics.get('profit_factor', 0):.2f} | {interp.get('profit_factor_text', '-')} |
-        | 年化波动率 | {metrics.get('annual_volatility', 0) * 100:.1f}% | - |
+        | Sharpe Ratio (夏普) | {metrics.get('sharpe_ratio', 0):.2f} | {interp.get('sharpe_text', '-')} |
+        | Max Drawdown (回撤) | {abs(metrics.get('max_drawdown', 0)) * 100:.1f}% | {interp.get('drawdown_text', '-')} |
+        | Profit Factor (盈亏比) | {metrics.get('profit_factor', 0):.2f} | {interp.get('profit_factor_text', '-')} |
+        | Volatility (波动率) | {metrics.get('annual_volatility', 0) * 100:.1f}% | - |
         """)
         
-        st.info(f"📊 风险画像：{interp.get('risk_profile', '均衡型')}")
+        st.info(f"📊 Profile (画像)：{interp.get('risk_profile', '均衡型')}")
     
     # AI 评语
     st.markdown("---")
-    modules["render_section_header"]("AI 分析师评语", "🤖")
+    modules["render_section_header"]("AI Analyst Summary", "AI 分析师评语", "🤖")
     modules["render_ai_summary_card"](results["ai_summary"])
     
     # 免责声明
@@ -564,9 +586,11 @@ def render_results(results: Dict, modules: Dict):
         color: #64748B;
         font-size: 12px;
     ">
-        ⚠️ 免责声明：本报告仅供参考，不构成投资建议。加密货币投资有风险，请谨慎决策。
+        ⚠️ Disclaimer: For informational purposes only. Crypto investments carry risks. <br>
+        (免责声明：本报告仅供参考，不构成投资建议。加密货币投资有风险，请谨慎决策。)
     </div>
     """, unsafe_allow_html=True)
+
 
 
 def main():
@@ -608,22 +632,23 @@ def main():
             padding: 40px;
             color: #64748B;
         ">
-            <p>👆 输入 Smart Money 钱包地址开始分析</p>
-            <p style="font-size: 14px;">
-                支持链：<span style="color: #10B981;">Ethereum</span> | <span style="color: #3B82F6;">Solana</span>
+            <p style="font-size: 18px; color: #94A3B8;">Enter a Smart Money wallet address to start analysis</p>
+            <p style="font-size: 13px; margin-top: -10px;">👇 输入 Smart Money 钱包地址开始分析</p>
+            <p style="font-size: 14px; margin-top: 20px;">
+                Chains: <span style="color: #10B981;">Ethereum</span> | <span style="color: #3B82F6;">Solana</span>
             </p>
-            <p style="font-size: 12px; color: #475569;">
-                示例：<code>0x4b...</code> (ETH) 或 <code>5H...</code> (SOL)
+            <p style="font-size: 11px; color: #475569; margin-top: 10px;">
+                Example: <code>0x4b...</code> (ETH) or <code>5H...</code> (SOL)
             </p>
         </div>
         """, unsafe_allow_html=True)
     
     # 侧边栏配置提示
     with st.sidebar:
-        st.header("⚙️ 配置")
-        st.info(f"当前模式: {chain}")
+        st.header("⚙️ Settings (配置)")
+        st.info(f"Current Mode: {chain} (当前模式)")
         if chain == "Solana":
-            st.warning("⚠️ Solana 处于 Beta 测试阶段\n当前仅支持部分代币价格与 DEX 交易")
+            st.warning("⚠️ Solana is in Beta (测试中)\n\nSupports specific tokens and DEX trades only.")
 
 
 if __name__ == "__main__":
