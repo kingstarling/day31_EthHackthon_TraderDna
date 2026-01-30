@@ -225,7 +225,10 @@ class DuneFetcher:
             amount_usd = np.random.exponential(500) + 50
             
             # 生成收益（偏向小亏损，偶尔大赚）
-            if np.random.random() < 0.6:  # 60% 概率盈利
+            is_stable = token_symbol in config.STABLECOIN_SYMBOLS or token_addr in config.STABLECOIN_ADDRESSES
+            if is_stable:
+                pnl = 0  # 稳定币买卖不计入盈亏
+            elif np.random.random() < 0.6:  # 60% 概率盈利
                 pnl = amount_usd * np.random.uniform(0.05, 0.5)
             else:
                 pnl = -amount_usd * np.random.uniform(0.1, 0.8)

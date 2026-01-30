@@ -70,6 +70,16 @@ class Config:
             "explorer_url": "https://solscan.io/account/",
         }
     }
+    
+    # 稳定币列表（用于在分析中排除）
+    STABLECOIN_SYMBOLS: set = ("USDC", "USDT", "DAI", "UST", "BUSD", "PYUSD")
+    STABLECOIN_ADDRESSES: set = (
+        "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", # Solana USDC
+        "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", # Solana USDT
+        "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", # Eth USDC
+        "0xdac17f958d2ee523a2206206994597c13d831ec7", # Eth USDT
+        "0x6b175474e89094c44da98b954eedeac495271d0f", # Eth DAI
+    )
 
 # 全局配置实例
 config = Config()

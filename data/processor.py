@@ -118,8 +118,13 @@ class DataProcessor:
         pnl_records = []
         
         for token in df["token_address"].unique():
+            # 过滤掉稳定币
             token_trades = df[df["token_address"] == token].sort_values("timestamp")
+            first_symbol = token_trades["token_symbol"].iloc[0] if not token_trades.empty else ""
             
+            if token in config.STABLECOIN_ADDRESSES or first_symbol in config.STABLECOIN_SYMBOLS:
+                continue
+                
             buy_queue = []  # FIFO 队列: [(amount, price)]
             
             for _, trade in token_trades.iterrows():
