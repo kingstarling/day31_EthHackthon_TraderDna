@@ -179,17 +179,32 @@ def interpret_alpha_beta(result: Dict[str, float]) -> Dict[str, str]:
     
     # Alpha 占比解读
     alpha_pct = result.get("alpha_pct", 0)
-    if alpha_pct > 70:
-        interpretations["attribution_text"] = f"真实力！{alpha_pct:.0f}% 的收益来自 Alpha"
-        interpretations["is_skill_based"] = True
-    elif alpha_pct > 50:
-        interpretations["attribution_text"] = f"有实力，{alpha_pct:.0f}% 的收益靠能力获得"
-        interpretations["is_skill_based"] = True
-    elif alpha_pct > 30:
-        interpretations["attribution_text"] = f"能力有限，{result.get('beta_pct', 0):.0f}% 的收益来自跟大盘"
-        interpretations["is_skill_based"] = False
+    total_return = result.get("total_return", 0)
+    is_positive = total_return >= 0
+    
+    if is_positive:
+        if alpha_pct > 70:
+            interpretations["attribution_text"] = f"True Skill! {alpha_pct:.0f}% of gains from Alpha (真实力！{alpha_pct:.0f}% 的收益来自 Alpha)"
+            interpretations["is_skill_based"] = True
+        elif alpha_pct > 50:
+            interpretations["attribution_text"] = f"Skilled: {alpha_pct:.0f}% of gains from Alpha (有实力，{alpha_pct:.0f}% 的收益靠能力获得)"
+            interpretations["is_skill_based"] = True
+        elif alpha_pct > 30:
+            interpretations["attribution_text"] = f"Limited Skill: {result.get('beta_pct', 0):.0f}% of gains from Market (能力有限，{result.get('beta_pct', 0):.0f}% 的收益来自跟大盘)"
+            interpretations["is_skill_based"] = False
+        else:
+            interpretations["attribution_text"] = f"Lucky! {result.get('beta_pct', 0):.0f}% of gains from Market Beta (主要靠运气！{result.get('beta_pct', 0):.0f}% 是 Beta 收益)"
+            interpretations["is_skill_based"] = False
     else:
-        interpretations["attribution_text"] = f"主要靠运气！{result.get('beta_pct', 0):.0f}% 是 Beta 收益"
-        interpretations["is_skill_based"] = False
+        # 负收益情况
+        if alpha_pct > 70:
+            interpretations["attribution_text"] = f"Strategy Failure: {alpha_pct:.0f}% of losses from decisions (决策失误！{alpha_pct:.0f}% 的亏损源于交易策略)"
+            interpretations["is_skill_based"] = True  # 仍然是"个人原因"
+        elif alpha_pct > 30:
+            interpretations["attribution_text"] = f"Poor Execution: Mixed losses from strategy and market (执行不力：亏损源于策略与市场波动)"
+            interpretations["is_skill_based"] = True
+        else:
+            interpretations["attribution_text"] = f"Market Victim: {result.get('beta_pct', 0):.0f}% of losses from Market (大盘受害者：{result.get('beta_pct', 0):.0f}% 的亏损来自系统性风险)"
+            interpretations["is_skill_based"] = False
     
     return interpretations

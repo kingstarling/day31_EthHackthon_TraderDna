@@ -518,8 +518,12 @@ def render_results(results: Dict, modules: Dict):
         # 解读
         interp = results["alpha_beta_interp"]
         attribution_text = interp.get('attribution_text', '')
+        is_positive = results['alpha_beta'].get('total_return', 0) >= 0
         if interp.get("is_skill_based", False):
-            st.success(f"✅ Skill: {results['alpha_beta'].get('alpha_pct', 0):.0f}% Alpha\n\n({attribution_text})")
+            if is_positive:
+                st.success(f"✅ Skill: {results['alpha_beta'].get('alpha_pct', 0):.0f}% Alpha\n\n({attribution_text})")
+            else:
+                st.error(f"❌ Strategy/Execution: {results['alpha_beta'].get('alpha_pct', 0):.0f}% Alpha (Negative)\n\n({attribution_text})")
         else:
             st.warning(f"⚠️ Market: {results['alpha_beta'].get('beta_pct', 0):.0f}% Beta\n\n({attribution_text})")
     

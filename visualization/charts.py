@@ -52,19 +52,19 @@ def create_alpha_beta_chart(
     
     # 添加条形图
     fig.add_trace(go.Bar(
-        x=["收益归因"],
+        x=["Attribution (收益归因)"],
         y=[alpha_pct],
         name=f"Alpha {alpha_pct:.1f}%",
-        marker_color=COLORS["alpha"],
+        marker_color=COLORS["alpha"] if alpha_contribution >= 0 else COLORS["negative"],
         text=[f"Alpha: {alpha_pct:.1f}%"],
         textposition="inside",
     ))
     
     fig.add_trace(go.Bar(
-        x=["收益归因"],
+        x=["Attribution (收益归因)"],
         y=[beta_pct],
         name=f"Beta {beta_pct:.1f}%",
-        marker_color=COLORS["beta"],
+        marker_color=COLORS["beta"] if beta_contribution >= 0 else COLORS["negative"],
         text=[f"Beta: {beta_pct:.1f}%"],
         textposition="inside",
     ))
