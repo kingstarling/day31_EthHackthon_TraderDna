@@ -9,10 +9,8 @@ import numpy as np
 import pandas as pd
 from typing import Dict, Tuple, Optional
 
-try:
-    import empyrical as ep
-except ImportError:
-    ep = None
+# 不再使用 empyrical，因为它在 Python 3.12+ 中存在兼容性问题
+# 直接使用下方实现的手动计算逻辑
 
 
 def calculate_alpha_beta(
@@ -30,12 +28,6 @@ def calculate_alpha_beta(
         
     Returns:
         包含 alpha, beta, alpha_pct, beta_pct 的字典
-        
-    Example:
-        >>> wallet_returns = pd.Series([0.01, 0.02, -0.01, 0.03, 0.01])
-        >>> eth_returns = pd.Series([0.005, 0.01, -0.005, 0.02, 0.005])
-        >>> result = calculate_alpha_beta(wallet_returns, eth_returns)
-        >>> print(f"Alpha: {result['alpha']:.4f}, Beta: {result['beta']:.4f}")
     """
     if wallet_returns.empty or eth_returns.empty:
         return {
@@ -65,14 +57,8 @@ def calculate_alpha_beta(
     wallet_ret = aligned["wallet"]
     eth_ret = aligned["eth"]
     
-    # 使用 empyrical 计算或手动计算
-    if ep is not None:
-        # 使用 empyrical 库
-        beta = ep.beta(wallet_ret, eth_ret)
-        alpha = ep.alpha(wallet_ret, eth_ret, risk_free=risk_free_rate / 252)
-    else:
-        # 手动计算
-        beta, alpha = _calculate_alpha_beta_manual(wallet_ret, eth_ret, risk_free_rate)
+    # 直接使用手动计算
+    beta, alpha = _calculate_alpha_beta_manual(wallet_ret, eth_ret, risk_free_rate)
     
     # 收益归因
     total_return = (1 + wallet_ret).prod() - 1

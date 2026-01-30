@@ -8,8 +8,8 @@ streamlit>=1.30.0
 pandas>=2.0.0
 numpy>=1.24.0
 
-# 量化分析
-empyrical>=0.5.5
+# 量化分析 (已移除 empyrical 以提升兼容性)
+# 核心指标已在代码中手动实现
 
 # 可视化
 plotly>=5.18.0

@@ -8,10 +8,7 @@ import numpy as np
 import pandas as pd
 from typing import Dict, Optional
 
-try:
-    import empyrical as ep
-except ImportError:
-    ep = None
+# 不再使用 empyrical，改为手动计算以提高环境兼容性
 
 
 def calculate_risk_metrics(
@@ -29,11 +26,6 @@ def calculate_risk_metrics(
         
     Returns:
         包含各项风险指标的字典
-        
-    Example:
-        >>> returns = pd.Series([0.01, 0.02, -0.01, 0.03, -0.02, 0.01])
-        >>> metrics = calculate_risk_metrics(returns)
-        >>> print(f"夏普比率: {metrics['sharpe_ratio']:.2f}")
     """
     if returns_series.empty or len(returns_series) < 2:
         return _empty_metrics()
@@ -43,12 +35,8 @@ def calculate_risk_metrics(
     if len(returns) < 2:
         return _empty_metrics()
     
-    if ep is not None:
-        # 使用 empyrical 库
-        metrics = _calculate_with_empyrical(returns, risk_free_rate, periods_per_year)
-    else:
-        # 手动计算
-        metrics = _calculate_manually(returns, risk_free_rate, periods_per_year)
+    # 直接使用手动计算
+    metrics = _calculate_manually(returns, risk_free_rate, periods_per_year)
     
     # 添加额外指标
     metrics.update(_calculate_additional_metrics(returns))
