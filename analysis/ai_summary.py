@@ -191,12 +191,10 @@ def _generate_fallback_summary(data: Dict) -> Dict[str, str]:
         recommendation = "不推荐"
         rec_en = "Not Recommended"
     
-    summary = f"""**Trader Style:** {style_en} <br> <span style="font-size: 11px; color: #9CA3AF;">交易员风格：{style_zh}</span>
-    
-**Performance:** Total PnL is ${total_pnl:,.0f} with {alpha_pct:.0f}% Alpha (skill). <br> <span style="font-size: 11px; color: #9CA3AF;">表现：总收益 ${total_pnl:,.0f}，Alpha 占比 {alpha_pct:.0f}%</span>
-
-**Recommendation:** {rec_en} <br> <span style="font-size: 11px; color: #9CA3AF;">跟单建议：{recommendation}</span>
-"""
+    summary = f"""<div style="line-height: 1.6;">
+    <p><b>Trader Style:</b> {style_en} <br> <span style="font-size: 11px; color: #9CA3AF;">交易员风格：{style_zh}</span></p>
+    <p><b>Performance:</b> Total PnL is ${total_pnl:,.0f} with {alpha_pct:.0f}% Alpha (skill). <br> <span style="font-size: 11px; color: #9CA3AF;">表现：总收益 ${total_pnl:,.0f}，Alpha 占比 {alpha_pct:.0f}%</span></p>
+</div>"""
     
     return {
         "summary": summary,

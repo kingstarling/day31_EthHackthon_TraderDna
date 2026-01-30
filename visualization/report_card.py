@@ -106,7 +106,7 @@ def render_ai_summary_card(ai_result: Dict[str, str]) -> None:
             st.caption(f"📊 {confidence}")
         
         # 摘要内容
-        st.markdown(summary)
+        st.markdown(summary, unsafe_allow_html=True)
         
         # 跟单建议
         st.divider()
